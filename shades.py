@@ -9,9 +9,42 @@ import os
 import nltk
 
 
-# Load the video
 
-def task1():
+def task2():
+    r = sr.Recognizer()
+    print("thread2")
+    while 1:
+        with sr.Microphone() as source:
+            print("say something")
+            audio=r.listen(source)
+            tokens = nltk.word_tokenize(r.recognize_google(audio))
+            print(tokens)
+            tagged = nltk.pos_tag(tokens)
+            print(tagged)
+            
+            length = len(tagged) - 1
+            a = list()
+            for tuple1 in tagged:
+                print(tuple1[1])
+                log = (tuple1[1][0] == 'N')
+                if log == True:
+                    a.append(tuple1[0])
+            print(a)
+            print("Time over")
+        try:
+            print("text : " + r.recognize_google(audio))
+        except:
+            pass
+
+
+
+if __name__== "__main__" :
+    # Load the model built in the previous step
+
+    #face_cascade = cv2.CascadeClassifier('C:\\Users\\akshi\\abc.xml')
+    #https://github.com/Itseez/opencv/blob/master/data/haarcascades/haarcascade_eye.xml
+    #eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
+    os.environ['KMP_DUPLICATE_LIB_OK']='True'
     my_model = load_my_CNN_model('my_model')
 
     # Face cascade to detect faces
@@ -24,6 +57,8 @@ def task1():
     # Define a 5x5 kernel for erosion and dilation
     kernel = np.ones((5, 5), np.uint8)
 
+    print('checking 1')
+
     # Define filters
     filters = ['images/sunglasses.png', 'images/sunglasses_2.png', 'images/sunglasses_3.jpg', 'images/sunglasses_4.png', 'images/sunglasses_5.jpg', 'images/sunglasses_6.png']
     filterIndex = 0
@@ -31,7 +66,10 @@ def task1():
     filters_moustache = ['Moustache/1.png', 'Moustache/2.png', 'Moustache/3.png']
     filterIndex_moustache  = 0
     camera = cv2.VideoCapture(0)
-
+    t2=threading.Thread(target=task2, name='t2')
+   # t1.start()
+    t2.start()
+    print("mehul be bi=ola hai")
         # Keep looping
     while True:
         # Grab the current paintWindow
@@ -44,7 +82,7 @@ def task1():
         # Add the 'Next Filter' button to the frame
         frame = cv2.rectangle(frame, (500,10), (620,65), (235,50,50), -1)
         cv2.putText(frame, "NEXT FILTER", (512, 37), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
-
+  #      print('checking 2')
         # Detect faces
         faces = face_cascade.detectMultiScale(gray, 1.25, 6)
 
@@ -59,6 +97,7 @@ def task1():
         	cv2.CHAIN_APPROX_SIMPLE)
         center = None
 
+ #       print('checking 3')
         # Check to see if any contours were found
         if len(cnts) > 0:
         	# Sort the contours and find the largest one -- we
@@ -79,7 +118,7 @@ def task1():
                     filterIndex_moustache += 1
                     filterIndex_moustache %= 6
                     continue
-
+#        print('checking 4')
         for (x, y, w, h) in faces:
 
             # Grab the face
@@ -121,7 +160,7 @@ def task1():
             transparent_region = sunglass_resized[:,:,:3] != 0
             face_resized_color[int(points[9][1]):int(points[9][1])+sunglass_height, int(points[9][0]):int(points[9][0])+sunglass_width,:][transparent_region] = sunglass_resized[:,:,:3][transparent_region]
             
-           
+            #print('checking 5')
             # Add Moustache FILTER to the frame
             moustaches = cv2.imread(filters_moustache[filterIndex_moustache], cv2.IMREAD_UNCHANGED)
             moustache_width = int((points[11][0]-points[12][0])*1.1)
@@ -143,54 +182,19 @@ def task1():
 
             # Show the frame and the frame2
             cv2.imshow("Selfie Filters", frame)
-            cv2.imshow("Facial Keypoints", frame2)
+    #        cv2.imshow("Facial Keypoints", frame2)
 
         # If the 'q' key is pressed, stop the loop
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
+   #     print('checking 6')
     # Cleanup the camera and close any open windows
     camera.release()
     cv2.destroyAllWindows()
+   # t1=threading.Thread(target=task1, name='t1')
 
-def task2():
-    r = sr.Recognizer()
-    print("thread2")
-    while 1:
-        with sr.Microphone() as source:
-            print("say something")
-            audio=r.listen(source)
-            tokens = nltk.word_tokenize(r.recognize_google(audio))
-            print(tokens)
-            tagged = nltk.pos_tag(tokens)
-            print(tagged)
-            
-            length = len(tagged) - 1
-            a = list()
-            for tuple1 in tagged:
-                print(tuple1[1])
-                log = (tuple1[1][0] == 'N')
-                if log == True:
-                    a.append(tuple1[0])
-            print(a)
-            print("Time over")
-        try:
-            print("text : " + r.recognize_google(audio))
-        except:
-            pass
-
-
-
-if __name__== "__main__" :
-    # Load the model built in the previous step
-
-    #face_cascade = cv2.CascadeClassifier('C:\\Users\\akshi\\abc.xml')
-    #https://github.com/Itseez/opencv/blob/master/data/haarcascades/haarcascade_eye.xml
-    #eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
-    t1=threading.Thread(target=task1, name='t1')
-    t2=threading.Thread(target=task2, name='t2')
-    t1.start()
-    t2.start()
-
-    t1.join()
+   # t1.join()
     t2.join()
+
+
